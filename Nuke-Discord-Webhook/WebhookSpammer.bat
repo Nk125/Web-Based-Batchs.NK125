@@ -14,7 +14,6 @@ set /p "webhook=Ingresa el webhook a nukear: "
 echo %webhook% | findstr /I /C:""">webhook
 if exist webhook (
       del webhook /f /s /q
-      cls
       goto main
 )
 if "%webhook%"=="" goto enter
@@ -27,6 +26,8 @@ if %errorlevel% NEQ 0 (
 	goto enter
 )
 for /f "tokens=6 delims=:," %%a in (response.txt) do (
+        set "tmpstr=%%a"
+	set webname=%tmpstr:~1%
 	echo El webhook detectado es el siguiente:
 	echo %%a
 )
@@ -69,13 +70,19 @@ if "%return%" NEQ "204" (
 	set /a webspam-=1
 )
 echo.
-if "%return%"=="404" (
-	echo La ID del webhook no es correcta o ya no existe
+if "%return%"=="400" (
+        ::No creo que alguna vez esto se muestre pero lo mantengo por precaución
+	echo Usted no agrego un mensaje
 	pause
 	goto main
 )
 if "%return%"=="401" (
 	echo El token del webhook no es correcto o ya no existe
+	pause
+	goto main
+)
+if "%return%"=="404" (
+	echo La ID del webhook no es correcta o ya no existe
 	pause
 	goto main
 )
